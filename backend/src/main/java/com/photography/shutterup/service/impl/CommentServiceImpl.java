@@ -1,5 +1,7 @@
 package com.photography.shutterup.service.impl;
 
+import com.photography.shutterup.dto.CommentRequestDTO;
+import com.photography.shutterup.dto.CommentResponseDTO;
 import com.photography.shutterup.exception.ResourceNotFoundException;
 import com.photography.shutterup.model.Comment;
 import com.photography.shutterup.repository.CommentRepository;
@@ -40,11 +42,14 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public void deleteComment(Long commentId, Long userId) {
+    public void deleteComment(Long commentId, Long requesterId) {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new ResourceNotFoundException("Comment not found with id: " + commentId));
 
-        if (!comment.getUser().getId().equals(userId)) {
+        boolean isCommentOwner = comment.getUser().getId().equals(requesterId);
+        boolean isPostOwner = comment.getPost().getUser().getId().equals(requesterId);
+
+        if (!isCommentOwner && !isPostOwner) {
             throw new AccessDeniedException("You are not allowed to delete this comment!");
         }
 

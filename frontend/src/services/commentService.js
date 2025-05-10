@@ -17,3 +17,18 @@ export const fetchCommentsByPost = async (postId) => {
   });
   return response.data;
 };
+
+export const updateComment = async (commentId, userId, content) => {
+  const token = sessionStorage.getItem("token");
+  const res = await axios.put(`${API}/${commentId}?userId=${userId}`, { content }, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return res.data;
+};
+
+export const deleteComment = async (commentId, userId) => {
+  const token = sessionStorage.getItem("token");
+  await axios.delete(`${API}/${commentId}?userId=${userId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

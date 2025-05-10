@@ -9,6 +9,7 @@ import com.photography.shutterup.repository.PostRepository;
 import com.photography.shutterup.repository.UserRepository;
 import com.photography.shutterup.service.CommentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -46,15 +47,20 @@ public class CommentController {
                 .collect(Collectors.toList());
     }
 
+    // ✅ Single correct update method
     @PutMapping("/{id}")
-    public CommentResponseDTO updateComment(@PathVariable Long id, @RequestParam Long userId, @RequestBody CommentRequestDTO request) {
+    public CommentResponseDTO updateComment(@PathVariable Long id,
+                                            @RequestParam Long userId,
+                                            @RequestBody CommentRequestDTO request) {
         Comment updatedComment = commentService.updateComment(id, userId, request.getContent());
         return mapToResponseDTO(updatedComment);
     }
 
+    // ✅ Single correct delete method
     @DeleteMapping("/{id}")
-    public void deleteComment(@PathVariable Long id, @RequestParam Long userId) {
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id, @RequestParam Long userId) {
         commentService.deleteComment(id, userId);
+        return ResponseEntity.noContent().build();
     }
 
     private CommentResponseDTO mapToResponseDTO(Comment comment) {
@@ -62,6 +68,7 @@ public class CommentController {
                 .id(comment.getId())
                 .postId(comment.getPost().getId())
                 .userId(comment.getUser().getId())
+                .username(comment.getUser().getUsername())
                 .content(comment.getContent())
                 .createdAt(comment.getCreatedAt())
                 .build();

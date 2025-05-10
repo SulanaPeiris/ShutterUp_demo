@@ -71,7 +71,7 @@ public class UserController {
                 .profilePicture(user.getProfilePicture())
                 .role(user.getRole())
                 .isBanned(user.getIsBanned())
-                .followers(user.getFollowers())
+
                 .createdAt(user.getCreatedAt())
                 .build();
     }

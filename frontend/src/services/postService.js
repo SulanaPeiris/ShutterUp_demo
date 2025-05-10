@@ -47,3 +47,15 @@ export const fetchPostsByUserId = async (userId) => {
 
   return withCounts;
 };
+
+
+export const fetchAllPosts = async () => {
+  const token = sessionStorage.getItem("token"); // optional if public
+  const res = await axios.get("http://localhost:8080/api/posts", {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : undefined
+    }
+  });
+  return res.data;
+};
+

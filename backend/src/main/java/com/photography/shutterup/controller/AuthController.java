@@ -29,7 +29,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(User.Role.USER);
         user.setIsBanned(false);
-        user.setFollowers(0);
+        // No need to set followers – it's a Set, initialized in User entity
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully!");
@@ -48,7 +48,8 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials.");
         }
 
-        if (user.getRole() == User.Role.USER && user.getFollowers() >= 10) {
+        // ✅ Promotion to VERIFIED_USER based on followers count
+        if (user.getRole() == User.Role.USER && user.getFollowers().size() >= 10) {
             user.setRole(User.Role.VERIFIED_USER);
             userRepository.save(user);
         }
@@ -63,7 +64,7 @@ public class AuthController {
         response.put("name", user.getName());
         response.put("bio", user.getBio());
         response.put("profilePicture", user.getProfilePicture());
-        response.put("followers", user.getFollowers());
+        response.put("followers", user.getFollowers().size()); // ✅ Fixed
         response.put("role", user.getRole());
 
         return ResponseEntity.ok(response);

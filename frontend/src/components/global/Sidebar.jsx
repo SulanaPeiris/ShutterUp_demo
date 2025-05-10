@@ -61,8 +61,7 @@ const [isPostModalOpen, setIsPostModalOpen] = useState(false);
                             location.pathname === "/featured" ||
                             location.pathname === "/following";
 
-  const isLearnActive = location.pathname.startsWith("/academy") ||
-                        location.pathname === "/learn";
+  
 
   return (
     <aside
@@ -190,47 +189,26 @@ const [isPostModalOpen, setIsPostModalOpen] = useState(false);
         )}
 
         {/* Learn */}
-        <div
-          className={`flex items-center justify-between px-2 py-1 rounded-md transition ${
-            isLearnActive ? "bg-LightSilver text-Charcoal hover:bg-gray-300" : "text-AntiFlash"
-          } hover:bg-[#2c2c2c]`}
-        >
-          <NavLink
-            to="/learn"
-            className={`relative group flex items-center ${
+       <NavLink
+          to="/learn"
+          className={({ isActive }) =>
+            `relative group flex items-center px-2 py-2 rounded-md cursor-pointer ${
               collapsed ? "" : "space-x-3"
+            } hover:bg-[#2c2c2c] ${
+              isActive ? "bg-LightSilver text-Charcoal hover:bg-gray-300" : "text-AntiFlash"
+            }`
+          }
+        >
+          <Lightbulb className="w-5 h-5 min-w-[1.25rem]" />
+          <span
+            className={`transition-all duration-300 origin-left ${
+              collapsed ? "opacity-0 w-0" : "opacity-100 w-auto"
             }`}
           >
-            <Lightbulb className="w-5 h-5" />
-            {!collapsed && <span>Learn</span>}
-            {collapsed && renderTooltip("Learn")}
-          </NavLink>
-          {!collapsed && (
-            <button
-              onClick={() => setIsLearnOpen(!isLearnOpen)}
-             className={`rounded  p-1 ${ isLearnActive ? "bg-LightSilver text-Charcoal hover:bg-gray-300" : "text-AntiFlash"}`}
-            >
-              {isLearnOpen ? <ChevronUp /> : <ChevronDown />}
-            </button>
-          )}
-        </div>
-
-        {(isLearnOpen || collapsed) && (
-          <div className={`${collapsed ? "ml-0" : "ml-6"} text-sm text-gray-300`}>
-            <NavLink
-              to="/academy"
-              className={({ isActive }) =>
-                `relative group flex items-center space-x-3 px-2 py-2 rounded-md hover:bg-[#2c2c2c] ${
-                  isActive ? "bg-LightSilver text-Charcoal hover:bg-gray-300" : ""
-                }`
-              }
-            >
-              <GraduationCap className="w-5 h-5" />
-              {!collapsed && <span>Academy</span>}
-              {collapsed && renderTooltip("Academy")}
-            </NavLink>
-          </div>
-        )}
+            Learn
+          </span>
+          {collapsed && renderTooltip("Learn")}
+        </NavLink>
       </div>
 
       {/* Toggle Collapse Button */}
