@@ -33,6 +33,12 @@ public class LikeServiceImpl implements LikeService {
     }
 
     @Override
+    public boolean isPostLikedByUser(Long postId, Long userId) {
+        return likeRepository.findByPostIdAndUserId(postId, userId).isPresent();
+    }
+
+
+    @Override
     public long getLikeCount(Long postId) {
         return likeRepository.countByPostId(postId);
     }

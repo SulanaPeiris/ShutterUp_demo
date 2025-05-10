@@ -16,11 +16,30 @@ import {
 } from "lucide-react";
 import logo from "../../assets/branding/logo_c.png";
 import text from "../../assets/branding/text_w.png";
+import CreatePostModal from "../../components/posts/CreatePostModal";
+import { useAuth } from "../../context/AuthContext";
+import { createPost } from "../../services/postService";
 
 const Sidebar = ({ collapsed, setCollapsed }) => {
   const location = useLocation();
   const [isCommunityOpen, setIsCommunityOpen] = useState(true);
   const [isLearnOpen, setIsLearnOpen] = useState(true);
+
+const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const { user } = useAuth(); // must provide user.id
+
+  const handlePostSubmit = async (data) => {
+    try {
+      await createPost(data, user.id);
+      alert("Post created!");
+      setIsPostModalOpen(false);
+      // optionally refresh posts
+    } catch (err) {
+      console.error("Post creation failed", err);
+      alert("Something went wrong.");
+    }
+  };
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -73,6 +92,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           className={`flex items-center ${
             collapsed ? "justify-center" : "justify-start px-3"
           } py-2 text-sm hover:rounded-md space-x-3 hover:bg-[#2c2c2c] transition border-b-2 border-Charcoal`}
+          onClick={() => setIsPostModalOpen(true)}
         >
           <span className="w-10 h-10 bg-cyan-400/30 text-cyan-300 flex items-center justify-center rounded-full">
             <Plus className="w-7 h-7" />
@@ -82,7 +102,7 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
 
         {/* Home */}
         <NavLink
-          to="/"
+          to="/home"
           className={({ isActive }) =>
             `relative group flex items-center px-2 py-2 rounded-md cursor-pointer ${
               collapsed ? "" : "space-x-3"
@@ -224,6 +244,11 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           </button>
         </div>
       </div>
+       <CreatePostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onSubmit={handlePostSubmit}
+      />
     </aside>
   );
 };

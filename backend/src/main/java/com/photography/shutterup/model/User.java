@@ -19,18 +19,19 @@ public class User {
     @Column(nullable = false, unique = true)
     private String email;
 
+    @Column(nullable = false, unique = true)
+    private String username;
+
     private String password;
-
     private String name;
-
-    private String bio;   // <-- ✅ New bio field added here!
-
+    private String bio;
     private String profilePicture;
 
     @Enumerated(EnumType.STRING)
     private Role role;
 
     private Boolean isBanned = false;
+    private int followers = 0;
 
     private LocalDateTime createdAt;
 
@@ -43,5 +44,12 @@ public class User {
         USER,
         VERIFIED_USER,
         ADMIN
+    }
+
+    public void incrementFollowers() {
+        this.followers++;
+        if (this.role == Role.USER && this.followers >= 10) {
+            this.role = Role.VERIFIED_USER;
+        }
     }
 }

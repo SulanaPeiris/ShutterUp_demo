@@ -39,6 +39,14 @@ public class PostController {
         return mapToResponseDTO(createdPost);
     }
 
+    @GetMapping("/user/{userId}")
+    public List<PostResponseDTO> getPostsByUserId(@PathVariable Long userId) {
+        return postService.getPostsByUserId(userId).stream()
+                .map(this::mapToResponseDTO)
+                .collect(Collectors.toList());
+    }
+
+
     @GetMapping
     public List<PostResponseDTO> getAllPosts() {
         return postService.getAllPosts().stream()
@@ -84,6 +92,7 @@ public class PostController {
                 .cameraSettings(post.getCameraSettings())
                 .location(post.getLocation())
                 .userId(post.getUser().getId()) // 🔥 Get userId from User entity
+                .username(post.getUser().getUsername())
                 .createdAt(post.getCreatedAt())
                 .build();
     }

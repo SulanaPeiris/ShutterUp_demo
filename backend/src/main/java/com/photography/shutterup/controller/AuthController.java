@@ -4,8 +4,12 @@ import com.photography.shutterup.model.User;
 import com.photography.shutterup.repository.UserRepository;
 import com.photography.shutterup.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,21 +21,51 @@ public class AuthController {
     private final JwtUtils jwtUtils;
 
     @PostMapping("/signup")
-    public String signup(@RequestBody User user) {
+    public ResponseEntity<String> signup(@RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.badRequest().body("Email already in use!");
+        }
+
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(User.Role.USER);
+        user.setIsBanned(false);
+        user.setFollowers(0);
         userRepository.save(user);
-        return "User registered successfully!";
+
+        return ResponseEntity.ok("User registered successfully!");
     }
 
     @PostMapping("/login")
-    public String login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<?> login(@RequestParam String email, @RequestParam String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        if (passwordEncoder.matches(password, user.getPassword())) {
-            return jwtUtils.generateToken(user.getEmail());
-        } else {
-            throw new RuntimeException("Invalid password!");
+        if (Boolean.TRUE.equals(user.getIsBanned())) {
+            return ResponseEntity.status(403).body("Your account has been banned.");
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(401).body("Invalid credentials.");
+        }
+
+        if (user.getRole() == User.Role.USER && user.getFollowers() >= 10) {
+            user.setRole(User.Role.VERIFIED_USER);
+            userRepository.save(user);
+        }
+
+        String token = jwtUtils.generateToken(user.getEmail());
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("token", token);
+        response.put("id", user.getId());
+        response.put("username", user.getUsername());
+        response.put("email", user.getEmail());
+        response.put("name", user.getName());
+        response.put("bio", user.getBio());
+        response.put("profilePicture", user.getProfilePicture());
+        response.put("followers", user.getFollowers());
+        response.put("role", user.getRole());
+
+        return ResponseEntity.ok(response);
     }
 }
