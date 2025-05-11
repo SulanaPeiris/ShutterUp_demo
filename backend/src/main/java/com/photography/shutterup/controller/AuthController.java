@@ -2,6 +2,7 @@ package com.photography.shutterup.controller;
 
 import com.photography.shutterup.model.User;
 import com.photography.shutterup.repository.UserRepository;
+import com.photography.shutterup.service.FollowService;
 import com.photography.shutterup.util.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ public class AuthController {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtils jwtUtils;
+    private final FollowService followService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody User user) {
@@ -29,7 +31,6 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setRole(User.Role.USER);
         user.setIsBanned(false);
-        // No need to set followers – it's a Set, initialized in User entity
         userRepository.save(user);
 
         return ResponseEntity.ok("User registered successfully!");
@@ -48,8 +49,11 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid credentials.");
         }
 
-        // ✅ Promotion to VERIFIED_USER based on followers count
-        if (user.getRole() == User.Role.USER && user.getFollowers().size() >= 10) {
+        // ✅ Use followService to get follower count
+        int followerCount = followService.getFollowersCount(user);
+
+        // ✅ Promote if eligible
+        if (user.getRole() == User.Role.USER && followerCount >= 2) {
             user.setRole(User.Role.VERIFIED_USER);
             userRepository.save(user);
         }
@@ -64,7 +68,7 @@ public class AuthController {
         response.put("name", user.getName());
         response.put("bio", user.getBio());
         response.put("profilePicture", user.getProfilePicture());
-        response.put("followers", user.getFollowers().size()); // ✅ Fixed
+        response.put("followers", followerCount);
         response.put("role", user.getRole());
 
         return ResponseEntity.ok(response);

@@ -17,6 +17,6 @@ public class UserResponseDTO {
     private String profilePicture;
     private Role role;
     private Boolean isBanned;
-    private int followers;
+    private int followersCount;
     private LocalDateTime createdAt;
 }

@@ -42,18 +42,6 @@ public class User {
         this.createdAt = LocalDateTime.now();
     }
 
-    // Many-to-many relationship for followers
-    @ManyToMany(mappedBy = "following")
-    private Set<User> followers = new HashSet<>(); // Initialize as an empty set to avoid null
-
-    // Many-to-many relationship for following
-    @ManyToMany
-    @JoinTable(
-            name = "user_following",
-            joinColumns = @JoinColumn(name = "follower_id"),
-            inverseJoinColumns = @JoinColumn(name = "followee_id")
-    )
-    private Set<User> following = new HashSet<>(); // Initialize as an empty set
 
     public enum Role {
         USER,
@@ -61,10 +49,5 @@ public class User {
         ADMIN
     }
 
-    // Method to promote to verified user once followers reach 10
-    public void promoteToVerifiedIfEligible() {
-        if (this.role == Role.USER && this.followers.size() >= 10) {
-            this.role = Role.VERIFIED_USER;
-        }
-    }
+
 }
