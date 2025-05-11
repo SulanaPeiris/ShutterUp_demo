@@ -1,9 +1,11 @@
 package com.photography.shutterup.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Data
@@ -18,12 +20,23 @@ public class Tutorial {
     private Long id;
 
     private String title;
+
+    @Lob
     private String content;
+
     private String templateType;
+
+    private String category;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by", nullable = false)
-    private User user; // 🔥 Creator user
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // ✅ Prevents lazy-loading JSON errors
+    private User user;
+
+    private boolean published;
+
+    @OneToMany(mappedBy = "tutorial", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Step> steps;
 
     private LocalDateTime createdAt;
 
